@@ -1,0 +1,281 @@
+<!doctype html>
+<html>
+	<head>
+		<style>
+			.lds-ripple {
+			  display: inline-block;
+			  position: relative;
+			  width: 80px;
+			  height: 80px;
+			}
+			.lds-ripple div {
+			  position: absolute;
+			  border: 4px solid #fff;
+			  opacity: 1;
+			  border-radius: 50%;
+			  animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+			}
+			.lds-ripple div:nth-child(2) {
+			  animation-delay: -0.5s;
+			}
+			@keyframes lds-ripple {
+			  0% {
+				top: 36px;
+				left: 36px;
+				width: 0;
+				height: 0;
+				opacity: 0;
+			  }
+			  4.9% {
+				top: 36px;
+				left: 36px;
+				width: 0;
+				height: 0;
+				opacity: 0;
+			  }
+			  5% {
+				top: 36px;
+				left: 36px;
+				width: 0;
+				height: 0;
+				opacity: 1;
+			  }
+			  100% {
+				top: 0px;
+				left: 0px;
+				width: 72px;
+				height: 72px;
+				opacity: 0;
+			  }
+			}
+			
+			.loader{
+				position:fixed;
+				top:0;
+				z-index:80;
+				width:100vw;
+				height:100vh;
+				display:flex;
+				justify-content:center;
+				align-items:center;
+				background-color:rgba(0,0,0,0.5);
+			}
+		</style>
+	
+		<style>
+			body{
+				background-color:#000;
+				color:#fff;
+				padding:0;margin:0;
+				font-family:sans-serif;
+				overflow:hidden;
+			}
+			
+			.d-none{
+				display:none !important;
+			}
+			
+			.content{
+				display:flex;
+				justify-content:center;
+			}
+			
+			.animevideo{
+				height:100vh;
+			}
+			
+			.information{
+				position:fixed;
+				bottom:0;
+				z-index:50;
+				background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,0) 60%);
+				width:100%;
+				padding:30px;
+				display:flex;
+				flex-direction:row;
+			}	
+			
+			.animeTitle{
+				display:flex;
+				flex-direction:column;
+			}
+			
+			.animename{
+				font-size:5vh;
+			}
+			
+			.song{
+				padding:10px 0;
+				font-size:2vh;
+				color:#CCC;
+			}
+			
+			.settings{
+				position:fixed;
+				z-index:100;
+				width:100vw;
+				height:100vh;
+				background-color:hsl(290, 50%, 80%);
+				display:flex;
+				justify-content:center;
+				align-items:center;
+				transition:transform 2s;
+			}
+		
+			.blinder{
+				background-color:hsl(180, 50%, 50%);
+				top:0;
+				position:fixed;
+				z-index:75;
+				width:100vw;
+				height:100vh;
+				display:flex;
+				justify-content:center;
+				align-items:center;
+				font-size:25vh;
+				filter:opacity(100);
+				transition: filter 1s, background-color 1s;
+			}
+			
+			h1{
+				margin:0;
+			}
+			hr{
+				margin:10px 0;
+			}
+			
+			button{
+				background-color:transparent;
+				border:2px solid #FFF;
+				border-radius:2vw;
+				padding:0.5vw;
+				font-size:3vh;
+				color:#FFF;
+				margin:10px 0;
+			}
+			
+			
+			
+		</style>
+	</head>
+	<body>
+		<div class="loader d-none"><div class="lds-ripple"><div></div><div></div></div></div>
+		
+		<div class="settings">
+			<div style="display:flex;flex-direction:column;justify-content:center">
+				<h1>Infinite Anime BlindTest</h1>
+				<hr style="width:100%;">
+				<button onclick="launchBlindtest('OP')">Opening</button>
+				<button onclick="launchBlindtest('ED')">Ending</button>
+				<button onclick="launchBlindtest('--')">Both</button>
+			</div>
+		</div>
+		<div class="content">
+			<video class="animevideo" autoplay></video>	
+		</div>
+		<div class="information">
+			<div class="animeTitle">
+				<span class="animename"></span>
+				<span class="song"></span>
+			</div>
+		</div>
+		
+		
+		<div class="blinder">
+			<div class="blindCounter">
+				10
+			</div>
+		</div>
+		
+	
+	
+		<script>
+		
+		
+		
+		
+		
+		
+			var baseURL = "https://api.animethemes.moe/anime?";
+			var listParameter = [
+				"include=animethemes.animethemeentries.videos,animethemes.song.artists",
+				"fields[anime]=name,year",
+				"page[size]=1",
+				"sort=random"
+			];
+			var type = "OP";
+			var constructedURL = baseURL+listParameter.join("&");
+			
+			
+			function launchBlindtest(param){
+				type = param;
+				document.querySelector(".settings").style.transform="translate(0,-100vh)";
+				nextAnime();
+			}
+			
+			function nextAnime(){
+				video.currentTime = null;
+				document.querySelector(".blinder").style.filter = "opacity(100)";
+				fetch(constructedURL).then((res)=>{return res.json();}).then((res)=>{
+					var anime = res.anime[0];
+					if(type  == "OP" || type == "ED"){
+						anime.animethemes = anime.animethemes.filter(function(elem){
+							return elem.type == type;
+						});						
+						if(anime.animethemes.length == 0){
+							console.log("%c can't find "+type+" for anime '"+anime.name+"'","color:#F00");
+							nextAnime();
+						}
+					}
+					
+					anime.animethemes = anime.animethemes[Math.floor(Math.random() * anime.animethemes.length)];
+					anime.animethemes = {
+						"oped":anime.animethemes.slug,
+						"title":anime.animethemes.song.title,
+						"artist":anime.animethemes.song.artists.map(x=>x.name).join(", "),
+						"link":anime.animethemes.animethemeentries[0].videos[0].basename
+					}
+					
+					newTheme(anime);
+				});
+			}
+			
+			var video = document.querySelector(".animevideo");	
+			
+			var loadingverifier;
+			video.addEventListener("timeupdate",function(){
+				if(loadingverifier == video.currentTime || video.currentTime == 0){
+					document.querySelector(".loader").classList.remove("d-none");
+				}else{
+					document.querySelector(".loader").classList.add("d-none");
+				}			
+				loadingverifier = video.currentTime;
+				
+				var displayedTime = "";
+				
+				if(video.currentTime > 30){
+					nextAnime();
+				}else if(video.currentTime > 30-1){
+					document.querySelector(".blinder").style.filter = "opacity(100)";
+				}else if(video.currentTime > 10-1){
+					document.querySelector(".blinder").style.filter = "opacity(0)";
+				}else{
+					displayedTime = Math.round(10-video.currentTime)
+				}
+				document.querySelector(".blindCounter").innerHTML = displayedTime;		
+			});
+			
+			function newTheme(anime){
+					document.querySelector(".blinder").style.backgroundColor="hsl("+Math.floor(Math.random() * 360)+", 50%, 50%)";
+					document.querySelector(".loader").classList.remove("d-none");
+					
+					video.src = "https://v.animethemes.moe/"+anime.animethemes.link;
+					
+					document.querySelector(".animename").innerHTML = anime.name+(anime.animethemes.oped.length > 2?" - "+anime.animethemes.oped:"");
+					document.querySelector(".song").innerHTML = (anime.animethemes.artist != ""?anime.animethemes.artist+" - ":"")+anime.animethemes.title;
+			}
+			
+		
+		</script>
+	</body>
+</html>
