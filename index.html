@@ -53,8 +53,8 @@
 				position:fixed;
 				top:0;
 				z-index:80;
-				width:100vw;
-				height:100vh;
+				width:100%;
+				height:100%;
 				display:flex;
 				justify-content:center;
 				align-items:center;
@@ -63,7 +63,12 @@
 		</style>
 	
 		<style>
+			html {
+				height: -webkit-fill-available;
+			}
+		
 			body{
+				width:100%; height:100%;
 				background-color:#000;
 				color:#fff;
 				padding:0;margin:0;
@@ -104,17 +109,18 @@
 				font-size:5vh;
 			}
 			
-			.song{
+			.song, .year{
 				padding:10px 0;
 				font-size:2vh;
 				color:#CCC;
 			}
 			
 			.settings{
+				font-size:2vh;
 				position:fixed;
 				z-index:100;
-				width:100vw;
-				height:100vh;
+				width:100%;
+				height:100%;
 				background-color:hsl(290, 50%, 80%);
 				display:flex;
 				justify-content:center;
@@ -127,8 +133,8 @@
 				top:0;
 				position:fixed;
 				z-index:75;
-				width:100vw;
-				height:100vh;
+				width:100%;
+				height:100%;
 				display:flex;
 				justify-content:center;
 				align-items:center;
@@ -148,26 +154,114 @@
 				background-color:transparent;
 				border:2px solid #FFF;
 				border-radius:2vw;
-				padding:0.5vw;
-				font-size:3vh;
+				padding:10px 32px;
+				font-size:2vh;
 				color:#FFF;
-				margin:10px 0;
+				margin:10px;
 			}
 			
+			button:hover{
+				background-color:rgba(128,0,0,0.1);
+				cursor:pointer;
+			}
 			
+			.np{
+				z-index:80;
+				background-color:rgba(255,255,255,0);
+				position:fixed;
+				
+				height:100%;
+				width:2%;
+				
+				padding:10px;
+				display:flex;
+				align-items:center;
+				justify-content:center;
+				color:#FFF;
+				font-size:32px;
+				transition:background-color 1s;
+				cursor:pointer;
+			}
 			
+			.next{
+				top:0;right:0;
+			}
+			.precedent{
+				top:0;left:0;
+			}
+			
+			.np:hover{
+				background-color:rgba(255,255,255,0.2);
+			}
+			
+			input{
+				background-color:transparent;
+				border:none;
+				border-bottom:2px solid #FFF;
+				color:#FFF;
+				font-size:2vh;
+				text-align:center;
+			}
+			input:focus{
+				outline:none;
+			}
+			label{
+				padding:0 10px;
+			}
+			table {
+			  border-collapse: collapse;
+			  width: 100%;
+			}
+
+			th, td {
+			  text-align: left;
+			  padding: 8px;
+			}
+
+			tr:nth-child(even){background-color: rgba(255,255,255,0.5)}
+
+			th {
+			  background-color: rgba(128,0,0,0.1);
+			  color: white;
+			  text-align:center;
+			}
 		</style>
+		<title>Infinite Anime Blindtest</title>
+		<meta charset="utf-8"></meta>
 	</head>
 	<body>
 		<div class="loader d-none"><div class="lds-ripple"><div></div><div></div></div></div>
 		
 		<div class="settings">
 			<div style="display:flex;flex-direction:column;justify-content:center">
-				<h1>Infinite Anime BlindTest</h1>
+				<h1 style="display:flex;justify-content:center">Infinite Anime BlindTest</h1>
+				<div style="display:flex;justify-content:center;font-size:2vh;color:rgba(255,255,255,0.7)">Made by Shannon Egoiste</div>
 				<hr style="width:100%;">
-				<button onclick="launchBlindtest('OP')">Opening</button>
-				<button onclick="launchBlindtest('ED')">Ending</button>
-				<button onclick="launchBlindtest('--')">Both</button>
+				<div style="display:flex;justify-content:center;padding:10px"><label for="blindDuration">Blind duration </label><input id="blindDuration" type="number" value="10"/> s</div>
+				<div style="display:flex;justify-content:center;padding:10px"><label for="revealDuration">Reveal duration </label><input id="revealDuration" type="number" value="30"/> s</div>
+				<div>from year <input id="startYear" value="1963"/> to <input id="endYear" value="2023"/></div>
+				<hr style="width:100%">
+				<div style="display:flex;flex-direction:row;justify-content:center;">
+					<button onclick="launchBlindtest('OP')">Opening</button>
+					<button onclick="launchBlindtest('ED')">Ending</button>
+					<button onclick="launchBlindtest('--')">Both</button>
+				</div>
+				<hr class="resumeBlindTest d-none">
+				<div class="resumeBlindTest d-none" style="max-height:256px;overflow-y:scroll">
+					<table>
+						<thead>
+							<tr><th colspan="2">BlindTestHistory</th></tr>
+							<tr><th>anime op</th><th>link</th></tr>
+							</thead>
+							<tbody class="history"></tbody>
+					</table>
+				</div>
+				<hr class="resumeBlindTest d-none">
+				<button class="resumeBlindTest d-none" onclick="resumeBlindTest()">Resume</button>
+				<hr style="width:100%">
+				<div>
+					video and data come from <a href="https://animethemes.moe/">animethemes.moe</a> awesome API 
+				</div>
 			</div>
 		</div>
 		<div class="content">
@@ -176,9 +270,12 @@
 		<div class="information">
 			<div class="animeTitle">
 				<span class="animename"></span>
-				<span class="song"></span>
+				<div style="display:flex;flex-direction:row;"><span class="year"></span><div style="border:1px solid #FFF;margin:10px"></div><span class="song"></span></div>
 			</div>
 		</div>
+		<div class="precedent np" onclick="openSettings()">‹</div>
+		<div class="next np" onclick="nextAnime()">›</div>
+		
 		
 		
 		<div class="blinder">
@@ -187,15 +284,15 @@
 			</div>
 		</div>
 		
-	
+		<script>
+			fetch("https://api.animethemes.moe/animeyear/").then((res)=> res.json()).then((res)=>{
+				document.querySelector("#startYear").value = starYear =res[0];
+				document.querySelector("#endYear").value = endYear = res[res.length-1];				
+			});
+		
+		</script>
 	
 		<script>
-		
-		
-		
-		
-		
-		
 			var baseURL = "https://api.animethemes.moe/anime?";
 			var listParameter = [
 				"include=animethemes.animethemeentries.videos,animethemes.song.artists",
@@ -203,14 +300,40 @@
 				"page[size]=1",
 				"sort=random"
 			];
-			var type = "OP";
-			var constructedURL = baseURL+listParameter.join("&");
-			
+			var type = "";
+			var constructedURL = "";
+			var revealDuration = 0;
+			var blindDuration = 0;
+			var startYear = 0;
+			var endYear = 0;
 			
 			function launchBlindtest(param){
+				blindDuration = Number(document.querySelector("#blindDuration").value);
+				revealDuration = blindDuration+Number(document.querySelector("#revealDuration").value);
+				if(blindDuration == 0){
+					document.querySelector(".blinder").classList.add("d-none");	
+				}
+				
+				startYear = document.querySelector("#startYear").value;
+				endYear = document.querySelector("#endYear").value;		
+				
+				listParameter.push("filter[year-gte-and]="+startYear);
+				listParameter.push("filter[year-lte-and]="+endYear);
+				constructedURL = baseURL+listParameter.join("&");
 				type = param;
-				document.querySelector(".settings").style.transform="translate(0,-100vh)";
+				document.querySelector(".settings").style.transform="translate(0,-100%)";
 				nextAnime();
+			}
+			
+			function resumeBlindTest(){
+				document.querySelector(".settings").style.transform="translate(0,-100%)";
+				video.play();
+			}
+			
+			function openSettings(){
+				document.querySelector(".settings").style.transform="translate(0,0)";
+				document.querySelectorAll(".resumeBlindTest").forEach((elem)=>{elem.classList.remove("d-none");});
+				video.pause();
 			}
 			
 			function nextAnime(){
@@ -225,6 +348,7 @@
 						if(anime.animethemes.length == 0){
 							console.log("%c can't find "+type+" for anime '"+anime.name+"'","color:#F00");
 							nextAnime();
+							return;
 						}
 					}
 					
@@ -253,11 +377,11 @@
 				
 				var displayedTime = "";
 				
-				if(video.currentTime > 30){
+				if(video.currentTime > revealDuration || video.currentTime == video.duration){
 					nextAnime();
-				}else if(video.currentTime > 30-1){
+				}else if(video.currentTime > revealDuration-1){
 					document.querySelector(".blinder").style.filter = "opacity(100)";
-				}else if(video.currentTime > 10-1){
+				}else if(video.currentTime > blindDuration-1){
 					document.querySelector(".blinder").style.filter = "opacity(0)";
 				}else{
 					displayedTime = Math.round(10-video.currentTime)
@@ -272,10 +396,17 @@
 					video.src = "https://v.animethemes.moe/"+anime.animethemes.link;
 					
 					document.querySelector(".animename").innerHTML = anime.name+(anime.animethemes.oped.length > 2?" - "+anime.animethemes.oped:"");
-					document.querySelector(".song").innerHTML = (anime.animethemes.artist != ""?anime.animethemes.artist+" - ":"")+anime.animethemes.title;
+					document.querySelector(".year").innerHTML = "start airing in "+anime.year;
+					document.querySelector(".song").innerHTML = "Song : "+(anime.animethemes.artist != ""?anime.animethemes.artist+" - ":"")+anime.animethemes.title;
+					
+					document.querySelector(".history").innerHTML+="<tr><td>"+anime.name+"</td><td><a href='"+video.src+"'>link</a></td></tr>";
 			}
 			
-		
+			document.addEventListener("wheel",function(e){
+				var inc = (e.deltaY>0?-0.05:0.05);
+				video.volume = Math.min(Math.max(0,video.volume+inc),1);
+				
+			});
 		</script>
 	</body>
 </html>
