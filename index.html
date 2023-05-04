@@ -124,10 +124,11 @@
 				background-color:hsl(290, 50%, 80%);
 				display:flex;
 				justify-content:center;
+				flex-direction:column;
 				align-items:center;
 				transition:transform 2s;
 			}
-		
+			
 			.blinder{
 				background-color:hsl(180, 50%, 50%);
 				top:0;
@@ -146,9 +147,6 @@
 			h1{
 				margin:0;
 			}
-			hr{
-				margin:10px 0;
-			}
 			
 			button{
 				background-color:transparent;
@@ -163,6 +161,11 @@
 			button:hover{
 				background-color:rgba(128,0,0,0.1);
 				cursor:pointer;
+			}
+			
+			button[disabled]{
+				background-color:#DDD;
+				cursor:not-allowed;
 			}
 			
 			.np{
@@ -194,7 +197,7 @@
 				background-color:rgba(255,255,255,0.2);
 			}
 			
-			input{
+			input, select{
 				background-color:transparent;
 				border:none;
 				border-bottom:2px solid #FFF;
@@ -202,11 +205,15 @@
 				font-size:2vh;
 				text-align:center;
 			}
-			input:focus{
+			input:focus, select:focus{
 				outline:none;
 			}
-			label{
-				padding:0 10px;
+			
+			select{
+				width:100%;
+			}
+			select option{
+				background-color:hsl(290, 50%, 80%);
 			}
 			table {
 			  border-collapse: collapse;
@@ -225,9 +232,16 @@
 			  color: white;
 			  text-align:center;
 			}
+			
+			.labeledForm{
+				display:grid;
+				grid-template-columns:1fr 1fr 20px;
+				margin:20px 0;
+			}
+			
 		</style>
 		<title>Infinite Anime Blindtest</title>
-		<meta charset="utf-8"></meta>
+		<meta charset="utf-8">
 		<meta property="og:site_name" content="ShannonEgoiste">		
 		<meta property="og:url" content="https://shannonegoiste.github.io/InfiniteBlindtest/">		
 		<meta property="og:title" content="Infinite Blindtest">		
@@ -236,35 +250,39 @@
 		<div class="loader d-none"><div class="lds-ripple"><div></div><div></div></div></div>
 		
 		<div class="settings">
-			<div style="display:flex;flex-direction:column;justify-content:center">
-				<h1 style="display:flex;justify-content:center">Infinite Anime BlindTest</h1>
-				<div style="display:flex;justify-content:center;font-size:2vh;color:rgba(255,255,255,0.7)">Made by Shannon Egoiste</div>
+			<div class="settingsBlindTest">
+				<h1>Infinite Anime BlindTest</h1>
+				<div style="font-size:2vh;color:rgba(255,255,255,0.7)">Made by&nbsp;<a style="color:#FFFA;" href="https://twitter.com/EgoisteShannon">Shannon Egoiste</a></div>
 				<hr style="width:100%;">
-				<div style="display:flex;justify-content:center;padding:10px"><label for="blindDuration">Blind duration </label><input id="blindDuration" type="number" value="10"/> s</div>
-				<div style="display:flex;justify-content:center;padding:10px"><label for="revealDuration">Reveal duration </label><input id="revealDuration" type="number" value="30"/> s</div>
-				<div>from year <input id="startYear" value="1963"/> to <input id="endYear" value="2023"/></div>
-				<hr style="width:100%">
-				<div style="display:flex;flex-direction:row;justify-content:center;">
-					<button onclick="launchBlindtest('OP')">Opening</button>
-					<button onclick="launchBlindtest('ED')">Ending</button>
-					<button onclick="launchBlindtest('--')">Both</button>
+				<div class='labeledForm'><label for="blindDuration">Blind duration</label><input id="blindDuration" type="number" value="10"/>s</div>
+				<div class='labeledForm'><label for="revealDuration">Reveal duration</label><input id="revealDuration"type="number" value="25"/>s</div>
+				<hr style="width:100%;">
+				<div class='labeledForm'><label for="listMode">Theme list</label><select id="listMode" onchange="listSelection(this.value);">
+					<option value="rand" selected>Random</option>
+					<option value="t100">100 Most Popular MAL</option>
+					<option value="gund">Gundam</option>
+					<select/>
 				</div>
+				<div class='labeledForm'><label for="themeMode">Theme mode</label><select id="themeMode"><option value="OP" selected>Opening</option><option value="ED">Ending</option><option value="--">Both</option><select/></div>
+				<div id="yearArea">from year <input id="startYear" value="1963"/> to <input id="endYear" value="2023"/></div>
+				<hr style="width:100%;">
+				<button style="width:100%;" onclick="launchBlindtest()" class="startButton">start</button>
 				<hr class="resumeBlindTest d-none">
 				<div class="resumeBlindTest d-none" style="max-height:256px;overflow-y:scroll">
 					<table>
 						<thead>
 							<tr><th colspan="2">BlindTestHistory</th></tr>
 							<tr><th>anime op</th><th>link</th></tr>
-							</thead>
-							<tbody class="history"></tbody>
+						</thead>
+						<tbody class="history"></tbody>
 					</table>
 				</div>
 				<hr class="resumeBlindTest d-none">
-				<button class="resumeBlindTest d-none" onclick="resumeBlindTest()">Resume</button>
-				<hr style="width:100%">
-				<div>
-					video and data come from <a href="https://animethemes.moe/">animethemes.moe</a> awesome API 
-				</div>
+				<button class="resumeBlindTest d-none" style="width:100%;" onclick="resumeBlindTest()">Resume</button>
+			</div>
+			
+			<div style="position:fixed;bottom:0px;left:0px;margin:10px;">
+				video and data come from <a href="https://animethemes.moe/">animethemes.moe</a> awesome API 
 			</div>
 		</div>
 		<div class="content">
@@ -309,21 +327,58 @@
 			var blindDuration = 0;
 			var startYear = 0;
 			var endYear = 0;
+			var gameList;
+			var listAnime = []; 
+			//byPopularity();
+			//gundam();
 			
-			function launchBlindtest(param){
+			function listSelection(v){
+				;
+				document.querySelector("#themeMode").value = "OP";
+				if(v == "rand"){
+					document.querySelector("#yearArea").classList.remove("d-none");
+				}else{
+					document.querySelector(".startButton").setAttribute("disabled",true);
+					listAnime = [];
+					if(v == "gund"){
+						fetch("https://api.animethemes.moe/anime?fields[anime]=name&q=gundam&page[size]=100").then((res)=>res.json()).then((res)=>{
+							listAnime = res.anime.map(x=>x.name);
+							listAnime = listAnime.filter(x=>x.indexOf("undam")>0);
+							document.querySelector(".startButton").removeAttribute("disabled");
+						});
+						document.querySelector("#themeMode").value = "--";
+					}else if(v == "t100"){
+						for(var i = 1; i <= 4; i++){
+							fetch("https://api.jikan.moe/v4/top/anime?page="+i+"&filter=bypopularity&type=tv").then((res)=>{ return res.json();}).then((res)=>{
+								listAnime = listAnime.concat(res.data.map(x=>x.title));
+								document.querySelector(".startButton").removeAttribute("disabled");
+							});				
+						}
+					}
+					
+					document.querySelector("#yearArea").classList.add("d-none");
+				}
+			}
+			
+			function launchBlindtest(){
 				blindDuration = Number(document.querySelector("#blindDuration").value);
 				revealDuration = blindDuration+Number(document.querySelector("#revealDuration").value);
 				if(blindDuration == 0){
 					document.querySelector(".blinder").classList.add("d-none");	
 				}
 				
-				startYear = document.querySelector("#startYear").value;
-				endYear = document.querySelector("#endYear").value;		
+				gameList = document.querySelector("#listMode").value;
 				
-				listParameter.push("filter[year-gte-and]="+startYear);
-				listParameter.push("filter[year-lte-and]="+endYear);
+						
+				if(gameList == "rand"){ 				
+					startYear = document.querySelector("#startYear").value;
+					endYear = document.querySelector("#endYear").value;			
+					listParameter.push("filter[year-gte-and]="+startYear);
+					listParameter.push("filter[year-lte-and]="+endYear);
+				}
+				
 				constructedURL = baseURL+listParameter.join("&");
-				type = param;
+				type = document.querySelector("#themeMode").value;
 				document.querySelector(".settings").style.transform="translate(0,-100%)";
 				nextAnime();
 			}
@@ -338,11 +393,17 @@
 				document.querySelectorAll(".resumeBlindTest").forEach((elem)=>{elem.classList.remove("d-none");});
 				video.pause();
 			}
-			
+
 			function nextAnime(){
 				video.currentTime = null;
+				
+				var ncURL = constructedURL;
+				if(gameList != 'rand'){
+					ncURL+="&q="+encodeURI(listAnime[Math.floor(Math.random() * listAnime.length)]);
+				}
+
 				document.querySelector(".blinder").style.filter = "opacity(100)";
-				fetch(constructedURL).then((res)=>{return res.json();}).then((res)=>{
+				fetch(ncURL).then((res)=>{return res.json();}).then((res)=>{
 					var anime = res.anime[0];
 					if(type  == "OP" || type == "ED"){
 						anime.animethemes = anime.animethemes.filter(function(elem){
@@ -354,7 +415,6 @@
 							return;
 						}
 					}
-					
 					anime.animethemes = anime.animethemes[Math.floor(Math.random() * anime.animethemes.length)];
 					anime.animethemes = {
 						"oped":anime.animethemes.slug,
@@ -387,7 +447,7 @@
 				}else if(video.currentTime > blindDuration-1){
 					document.querySelector(".blinder").style.filter = "opacity(0)";
 				}else{
-					displayedTime = Math.round(10-video.currentTime)
+					displayedTime = Math.round(blindDuration-video.currentTime)
 				}
 				document.querySelector(".blindCounter").innerHTML = displayedTime;		
 			});
