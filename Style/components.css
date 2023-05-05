@@ -1,0 +1,39 @@
+button{
+	background-color:transparent;
+	border:2px solid #FFF;
+	border-radius:2vw;
+	padding:10px 32px;
+	font-size:2vh;
+	color:#FFF;
+	margin:10px;
+}
+
+button:hover{
+	background-color:rgba(0,0,0,0.1);
+	cursor:pointer;
+}
+
+button[disabled]{
+	background-color:#DDD;
+	cursor:not-allowed;
+}
+
+input, select{
+	background-color:transparent;
+	border:none;
+	border-bottom:2px solid #FFF;
+	color:#FFF;
+	font-size:2vh;
+	text-align:center;
+	cursor:pointer;
+}
+input:focus, select:focus{
+	outline:none;
+}
+
+select{
+	width:100%;
+}
+select option{
+	background-color:#888;
+}
